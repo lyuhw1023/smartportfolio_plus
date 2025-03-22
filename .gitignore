@@ -11,3 +11,4 @@ Thumbs.db
 local.properties
 app/src/main/res/xml/backup_rules.xml
 app/src/main/res/xml/data_extraction_rules.xml
+app/google-services.json

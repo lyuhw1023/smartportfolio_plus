@@ -4,12 +4,15 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -17,12 +20,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.hyen.smartportfolio_plus.ui.theme.SmartportfolioPlusTheme
-import androidx.compose.ui.unit.dp
 
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
-    private val RC_SIGN_IN = 1001
+    private lateinit var googleSignInLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +40,17 @@ class MainActivity : ComponentActivity() {
 
         // Google 로그인 클라이언트 생성
         googleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        // ActivityResultLauncher 초기화
+        googleSignInLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            val account = task.result
+            if (account != null) {
+                firebaseAuthWithGoogle(account)
+            }
+        }
 
         // 앱 시작 시 로그인 상태 확인
         val currentUsesr = auth.currentUser
@@ -68,20 +81,7 @@ class MainActivity : ComponentActivity() {
     // 로그인 버튼 클릭 시 호출되는 함수
     private fun signIn() {
         val signInIntent = googleSignInClient.signInIntent
-        startActivityForResult(signInIntent, RC_SIGN_IN)
-    }
-
-    // 로그인 결과 처리
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == RC_SIGN_IN) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            val account = task.result
-            if (account != null) {
-                firebaseAuthWithGoogle(account)
-            }
-        }
+        googleSignInLauncher.launch(signInIntent)
     }
 
     // firebase 인증 및 연결

@@ -19,6 +19,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import com.hyen.smartportfolio_plus.ui.theme.SmartportfolioPlusTheme
 
 class MainActivity : ComponentActivity() {
@@ -68,7 +71,7 @@ class MainActivity : ComponentActivity() {
             }
         } else {
             println("로그인되지 않음")
-            setContent{
+            setContent {
                 SmartportfolioPlusTheme {
                     Surface {
                         GoogleLoginButton()
@@ -94,6 +97,12 @@ class MainActivity : ComponentActivity() {
                     val user = auth.currentUser
                     println("로그인 성공: ${user?.displayName}")
 
+                    // Firestore에 사용자 정보 저장
+                    saveUserToFirestore(
+                        userName = user?.displayName ?: "Unknown",
+                        userEmail = user?.email ?: "Unknown"
+                    )
+
                     // 로그인 성공 시 사용자 정보 화면에 표시
                     setContent {
                         SmartportfolioPlusTheme {
@@ -109,6 +118,25 @@ class MainActivity : ComponentActivity() {
                     // 로그인 실패
                     println("로그인 실패: ${task.exception?.message}")
                 }
+            }
+    }
+
+    // 사용자 정보 저장
+    private fun saveUserToFirestore(userName: String, userEmail: String) {
+        val db = FirebaseFirestore.getInstance()
+        val userId = Firebase.auth.currentUser?.uid ?: return   // 현재 로그인된 사용자 uid
+
+        val user = hashMapOf(
+            "name" to userName,
+            "email" to userEmail
+        )
+        db.collection("users").document(userId)
+            .set(user)
+            .addOnSuccessListener {
+                println("Firestore에 사용자 정보 저장 성공")
+            }
+            .addOnFailureListener { e ->
+                println("Firestore에 사용자 정보 저장 실패: ${e.message}")
             }
     }
 
@@ -148,17 +176,19 @@ class MainActivity : ComponentActivity() {
 
     // 사용자 정보
     @Composable
-    fun UserInfoScreen(userName: String, userEmail: String){
+    fun UserInfoScreen(userName: String, userEmail: String) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
-        ){
+        ) {
             Text(text = "환영합니다, $userName 님", style = MaterialTheme.typography.headlineMedium)
             Text(text = "이메일: $userEmail", style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = {signOut()},
+                onClick = { signOut() },
                 colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
             ) {
                 Text(text = "로그아웃")

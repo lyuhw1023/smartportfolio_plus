@@ -1,206 +1,140 @@
 package com.hyen.smartportfolio_plus
 
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.material.rememberScaffoldState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.hyen.smartportfolio_plus.screens.HomeScreen
+import com.hyen.smartportfolio_plus.ui.theme.SmartportfolioPlusTheme
+import kotlinx.coroutines.launch
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            DrawerNavigationApp()
+        }
+    }
+}
+
+@Composable
+fun DrawerNavigationApp() {
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
+
+    Scaffold(
+        scaffoldState = scaffoldState,
+        drawerContent = {
+            DrawerContent()
+        }
+    ) { paddingValues ->
+        HomeScreen(
+            onLogoutClick = {},
+            onMenuClick = { scope.launch { scaffoldState.drawerState.open() } },
+            paddingValues = paddingValues
+        )
+    }
+}
+
+@Composable
+fun DrawerContent() {
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text(text = "About", modifier = Modifier.padding(8.dp))
+        Text(text = "Project", modifier = Modifier.padding(8.dp))
+        Text(text = "", modifier = Modifier.padding(8.dp))
+        Text(text = "About", modifier = Modifier.padding(8.dp))
+    }
+}
+
+
+/*
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
-import com.hyen.smartportfolio_plus.ui.theme.SmartportfolioPlusTheme
+import com.google.android.gms.common.api.ApiException
+import navigation.NavGraph
+import viewmodel.AuthViewModel
+import kotlin.system.exitProcess
 
 class MainActivity : ComponentActivity() {
-    private lateinit var auth: FirebaseAuth
-    private lateinit var googleSignInClient: GoogleSignInClient
+    private val authViewModel: AuthViewModel by viewModels()
     private lateinit var googleSignInLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Firebase 인증 인스턴스 초기화
-        auth = FirebaseAuth.getInstance()
+        // 전역 예외 핸들러 추가 - 앱이 갑자기 종료될 때 로그 확인 가능
+        Thread.setDefaultUncaughtExceptionHandler { thread, exception ->
+            Log.e("GlobalException", "Uncaught Exception: ${exception.localizedMessage}", exception)
+            exitProcess(2)
+        }
 
-        // Google 로그인 옵션 설정
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()
+        Log.d("MainActivity", "앱 실행 시작 - onCreate 호출됨")
 
-        // Google 로그인 클라이언트 생성
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
+        authViewModel.initGoogleClient(getString(R.string.default_web_client_id))
+        Log.d("MainActivity", "Google 클라이언트 초기화 완료")
 
-        // ActivityResultLauncher 초기화
+        // Google 로그인 결과 처리
         googleSignInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
+            Log.d("MainActivity", "Google Sign-In 결과 호출됨")
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            val account = task.result
-            if (account != null) {
-                firebaseAuthWithGoogle(account)
-            }
-        }
-
-        // 앱 시작 시 로그인 상태 확인
-        val currentUsesr = auth.currentUser
-        if (currentUsesr != null) {
-            println("이미 로그인된 사용자: ${currentUsesr.displayName}")
-            setContent {
-                SmartportfolioPlusTheme {
-                    Surface {
-                        UserInfoScreen(
-                            userName = currentUsesr.displayName ?: "Unknown",
-                            userEmail = currentUsesr.email ?: "Unknown"
-                        )
-                    }
-                }
-            }
-        } else {
-            println("로그인되지 않음")
-            setContent {
-                SmartportfolioPlusTheme {
-                    Surface {
-                        GoogleLoginButton()
-                    }
-                }
-            }
-        }
-    }
-
-    // 로그인 버튼 클릭 시 호출되는 함수
-    private fun signIn() {
-        val signInIntent = googleSignInClient.signInIntent
-        googleSignInLauncher.launch(signInIntent)
-    }
-
-    // firebase 인증 및 연결
-    private fun firebaseAuthWithGoogle(account: GoogleSignInAccount) {
-        val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // 로그인 성공
-                    val user = auth.currentUser
-                    println("로그인 성공: ${user?.displayName}")
-
-                    // Firestore에 사용자 정보 저장
-                    saveUserToFirestore(
-                        userName = user?.displayName ?: "Unknown",
-                        userEmail = user?.email ?: "Unknown"
+            try {
+                val account = task.getResult(ApiException::class.java)
+                if (account != null) {
+                    Log.d("MainActivity", "Google Sign-In 성공: ${account.displayName}")
+                    authViewModel.getAuthManager().handleGoogleSignInResult(
+                        account,
+                        onSuccess = { userName -> Log.d("MainActivity", "로그인 성공: $userName") },
+                        onFailure = { errorMessage ->
+                            Log.e("MainActivity", "로그인 실패: $errorMessage")
+                        }
                     )
-
-                    // 로그인 성공 시 사용자 정보 화면에 표시
-                    setContent {
-                        SmartportfolioPlusTheme {
-                            Surface {
-                                UserInfoScreen(
-                                    userName = user?.displayName ?: "Unknown",
-                                    userEmail = user?.email ?: "Unknown"
-                                )
-                            }
-                        }
-                    }
                 } else {
-                    // 로그인 실패
-                    println("로그인 실패: ${task.exception?.message}")
+                    Log.e("MainActivity", "Google Sign-In 실패: 계정 정보가 null입니다.")
                 }
+            } catch (e: ApiException) {
+                Log.e("MainActivity", "Google Sign-In 오류 발생: ${e.message}", e)
+            } catch (e: Exception) {
+                Log.e("MainActivity", "예상치 못한 오류 발생: ${e.message}", e)
             }
+        }
+
+        setContent {
+            Log.d("MainActivity", "Compose UI 설정 시작")
+            SmartProtfolioApp()
+            Log.d("MainActivity", "Compose UI 설정 완료")
+        }
     }
 
-    // 사용자 정보 저장
-    private fun saveUserToFirestore(userName: String, userEmail: String) {
-        val db = FirebaseFirestore.getInstance()
-        val userId = Firebase.auth.currentUser?.uid ?: return   // 현재 로그인된 사용자 uid
-
-        val user = hashMapOf(
-            "name" to userName,
-            "email" to userEmail
+    @Composable
+    fun SmartProtfolioApp() {
+        val navController = rememberNavController()
+        NavGraph(
+            navController = navController,
+            authViewModel = authViewModel,
+            googleSignInLauncher = googleSignInLauncher
         )
-        db.collection("users").document(userId)
-            .set(user)
-            .addOnSuccessListener {
-                println("Firestore에 사용자 정보 저장 성공")
-            }
-            .addOnFailureListener { e ->
-                println("Firestore에 사용자 정보 저장 실패: ${e.message}")
-            }
-    }
-
-    // 로그아웃
-    private fun signOut() {
-        googleSignInClient.signOut()
-            .addOnCompleteListener(this) {
-                auth.signOut()
-                println("로그아웃 완료")
-
-                // 로그아웃 후 로그인 화면으로 전환
-                setContent {
-                    SmartportfolioPlusTheme {
-                        Surface {
-                            GoogleLoginButton()
-                        }
-                    }
-                }
-            }
-    }
-
-    @Composable
-    fun GoogleLoginButton() {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Button(
-                onClick = { signIn() },
-                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
-            ) {
-                Text(text = "Google 로그인")
-            }
-        }
-    }
-
-    // 사용자 정보
-    @Composable
-    fun UserInfoScreen(userName: String, userEmail: String) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(text = "환영합니다, $userName 님", style = MaterialTheme.typography.headlineMedium)
-            Text(text = "이메일: $userEmail", style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = { signOut() },
-                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
-            ) {
-                Text(text = "로그아웃")
-            }
-        }
-    }
-
-    @Preview(showBackground = true)
-    @Composable
-    fun GreetingPreview() {
-        SmartportfolioPlusTheme {
-            GoogleLoginButton()
-        }
     }
 }
+*/

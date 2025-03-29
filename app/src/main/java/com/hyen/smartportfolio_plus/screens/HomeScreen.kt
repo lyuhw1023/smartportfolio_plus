@@ -20,19 +20,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hyen.smartportfolio_plus.R
 import com.hyen.smartportfolio_plus.components.CommonAppBar
+import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun HomeScreen(
-    onMenuClick: () -> Unit,
-    onLogoutClick: () -> Unit,
+    scaffoldState: ScaffoldState,
+    scope: CoroutineScope,
     paddingValues: PaddingValues
 ) {
     Scaffold(
         topBar = {
             CommonAppBar(
                 title = "SmartPortfolio",
-                onMenuClick = onMenuClick,
-                onLogoutClick = onLogoutClick
+                scaffoldState = scaffoldState,
+                scope = scope
             )
         }
     ) { paddingValues ->
@@ -49,21 +50,21 @@ fun HomeScreen(
                 MenuCard(
                     icon = R.drawable.about,
                     title = "앱 소개",
-                    description = "2022년도 (주)더존비즈온 & 한림대학교 모바일 개발자 프로젝트 과정 본선 진출작입니다. \n기존 프로젝트를 업그레이드함 kotlin 기반 포트폴리오 앱으로 화면 간 이동, 데이터 전달, 리스트 구성, 웹 이동 등의 기능이 있습니다."
+                    description = "- 2022년도 (주)더존비즈온 & 한림대학교 모바일 개발자 과정 프로젝트 본선 진출작입니다. \n\n- kotlin 기반 포트폴리오 앱으로 화면 간 이동, 데이터 전달, 리스트 구성, 웹 이동 등의 기능이 있습니다.\n\n- 기존 프로젝트를 리팩토링함으로써 더욱 업그레이드 된 SmartPortfolio를 확인하실 수 있습니다."
                 )
             }
             item {
                 MenuCard(
                     icon = R.drawable.project,
                     title = "기능 소개",
-                    description = "About 페이지: 개인 소개 및 스킬 정보.\nProject 페이지: 프로젝트 목록과 세부 내용.\nContact: 연락 정보 및 ~ 제공.\nMore: 기타 활동(대회,동아리 등)"
+                    description = "- About: 개인 소개 및 스킬 정보.\n\n- Project: 프로젝트 목록과 세부 내용.\n\n- Contact: 연락 정보 및 ~ 제공.\n\n- More: 기타 활동(대회,동아리 등)"
                 )
             }
             item {
                 MenuCard(
                     icon = R.drawable.more,
                     title = "버전 정보 & 사용 기술",
-                    description = "androidstudio, jdk,버전들\n사용 기술: Kotlin, Jetpack Compose, Firebase, MVVM 패턴 적용"
+                    description = "- androidstudio, jdk,버전들\n\n- 사용 기술: Kotlin, Jetpack Compose, Firebase, MVVM 패턴 적용"
                 )
             }
             item {
@@ -73,7 +74,7 @@ fun HomeScreen(
                 Icon(
                     painter = painterResource(id = R.drawable.logo),
                     contentDescription = "앱 아이콘",
-                    modifier = Modifier.size(60.dp)
+                    modifier = Modifier.size(40.dp)
                 )
 
                 Text(
@@ -99,9 +100,9 @@ fun HomeScreen(
                             style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(text = "이름: 유혜원")
-                        Text(text = "이메일: lyuhw11023@gmail.com")
-                        Text(text = "깃허브: https://github.com/lyuhw1023")
+                        Text(text = "이름: 유혜원",style = TextStyle(fontSize = 11.sp, color = Color.DarkGray))
+                        Text(text = "이메일: lyuhw11023@gmail.com",style = TextStyle(fontSize = 11.sp, color = Color.DarkGray))
+                        Text(text = "깃허브: https://github.com/lyuhw1023",style = TextStyle(fontSize = 11.sp, color = Color.DarkGray))
                     }
                 }
             }
@@ -129,7 +130,7 @@ fun MenuCard(icon: Int, title: String, description: String) {
                     contentDescription = "$title Icon",
                     modifier = Modifier.size(30.dp)
                 )
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(10.dp))
                 Column {
                     Text(
                         text = title,
@@ -137,9 +138,10 @@ fun MenuCard(icon: Int, title: String, description: String) {
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF6495ED)
                     )
+                    Spacer(modifier = Modifier.height(10.dp))
                     Text(
                         text = description,
-                        fontSize = 16.sp,
+                        fontSize = 12.sp,
                         color = Color.DarkGray
                     )
                 }
@@ -152,8 +154,8 @@ fun MenuCard(icon: Int, title: String, description: String) {
 @Composable
 fun HomeScreenPreview() {
     HomeScreen(
-        onMenuClick = {},
-        onLogoutClick = {},
+        scaffoldState = rememberScaffoldState(),
+        scope = kotlinx.coroutines.MainScope(),
         paddingValues = PaddingValues(0.dp)
     )
 }

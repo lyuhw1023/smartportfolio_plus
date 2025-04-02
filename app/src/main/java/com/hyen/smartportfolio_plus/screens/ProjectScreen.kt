@@ -1,7 +1,6 @@
 package com.hyen.smartportfolio_plus.screens
 
 import android.os.Bundle
-import android.os.PersistableBundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
@@ -22,11 +21,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Card
-import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
@@ -36,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -184,21 +180,27 @@ fun ProjectScreen(
     val projects = listOf(
         Project(
             title = "SmartPortfolio",
-            description = "안드로이드 스튜디오를 사용해 개발한 스마트 포트폴리오 애플리케이션입니다. 코틀린을 사용해 전체적으로 애플리케이션을 개발하였습니다.",
-            imageRes = R.drawable.project,
-            detailLink = ""
-        ),
-        Project(
-            title = "Eyeforyou",
-            description = "안드로이드 스튜디오를 사용해 개발한 스마트 포트폴리오 애플리케이션입니다. 코틀린을 사용해 전체적으로 애플리케이션을 개발하였습니다.",
-            imageRes = R.drawable.project,
-            detailLink = ""
+            description = "kotlin을 사용해 개발한 포트폴리오 관리 어플입니다. 자신의 프로젝트와 개발 역량을 정리하고 손쉽게 공유할 수 있도록 합니다.",
+            imageRes = R.drawable.project_smartportfolio,
+            detailLink = "https://github.com/lyuhw1023/smart_portfolio"
         ),
         Project(
             title = "Tomorrow",
-            description = "안드로이드 스튜디오를 사용해 개발한 스마트 포트폴리오 애플리케이션입니다. 코틀린을 사용해 전체적으로 애플리케이션을 개발하였습니다.",
-            imageRes = R.drawable.project,
-            detailLink = ""
+            description = "사용자가 직접 작가가 되어 창작하고 출판할 수 있도록 지원하는 AI 기반 창작 중심 SNS 플랫폼입니다.",
+            imageRes = R.drawable.project_tomorrow,
+            detailLink = "https://github.com/lyuhw1023/To.Morrow"
+        ),
+        Project(
+            title = "EyeForYou",
+            description = "시각장애인의 쇼핑을 더 편리하고 즐겁게 만들어주는 쇼핑 동반자 AI 카메라 서비스 어플입니다.",
+            imageRes = R.drawable.project_eyeforyou,
+            detailLink = "https://github.com/lyuhw1023/eyeforyou_plus"
+        ),
+        Project(
+            title = "SilverLife",
+            description = "부모님의 실버타운 생활, 식단, 프로그램, 공지사항 등을 확인할 수 있는 실버타운 관리 플랫폼입니다.",
+            imageRes = R.drawable.project_silverlife,
+            detailLink = "https://github.com/lyuhw1023/silver_life"
         )
     )
 

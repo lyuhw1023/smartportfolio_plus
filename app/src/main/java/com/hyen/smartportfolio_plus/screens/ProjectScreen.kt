@@ -4,16 +4,25 @@ import android.os.Bundle
 import android.os.PersistableBundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Card
@@ -23,8 +32,11 @@ import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -109,10 +121,56 @@ fun ProjectList(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(8.dp)
     ) {
-        items(items = projects) { project ->
-            ProjectCard(project)
+        items(projects) { project ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 8.dp)
+                    .height(IntrinsicSize.Min)
+            ) {
+                // 타임라인
+                Box(
+                    modifier = Modifier
+                        .width(40.dp)
+                        .fillMaxHeight(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    // 선
+                    Canvas(modifier = Modifier
+                        .fillMaxHeight()
+                        .width(4.dp)
+                        .align(Alignment.Center)
+                    ) {
+                        drawLine(
+                            color = Color.Black,
+                            start = Offset(x = size.width / 2, y = 0f),
+                            end = Offset(x= size.width / 2, y = size.height),
+                            strokeWidth = 15f
+                        )
+                    }
+
+                    // 원
+                    Canvas(
+                        modifier = Modifier
+                            .size(25.dp)
+                            .offset(y = 25.dp)
+                            .align(Alignment.TopCenter)
+                    ) {
+                        // 바깥 원
+                        drawCircle(color = Color(0xFF6495ED))
+                        // 안쪽 원
+                        drawCircle(
+                            color = Color.White,
+                            radius = size.minDimension / 4f)
+                    }
+
+                }
+
+                // 프로젝트 카드
+                ProjectCard(project = project)
+            }
         }
     }
 }

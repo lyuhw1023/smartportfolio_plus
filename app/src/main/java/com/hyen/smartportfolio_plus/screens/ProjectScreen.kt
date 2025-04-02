@@ -1,5 +1,7 @@
 package com.hyen.smartportfolio_plus.screens
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -34,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -54,6 +57,8 @@ data class Project(
 
 @Composable
 fun ProjectCard(project: Project) {
+    val context = LocalContext.current
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -103,7 +108,10 @@ fun ProjectCard(project: Project) {
                     fontSize = 12.sp,
                     textAlign = TextAlign.End
                 ),
-                onClick = {}
+                onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(project.detailLink))
+                    context.startActivity(intent)
+                }
             )
         }
     }

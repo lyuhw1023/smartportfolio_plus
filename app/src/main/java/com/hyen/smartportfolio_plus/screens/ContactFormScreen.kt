@@ -26,10 +26,17 @@ fun ContactFormScreen(
     val contactList by viewModel.allContacts.observeAsState(emptyList())
     val original = contactList.find { it.id == contactId }
 
-    var name by remember { mutableStateOf(original?.name ?: "") }
-    var message by remember { mutableStateOf(original?.message ?: "") }
+    var name by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf("") }
 
     val isEditMode = original != null
+
+    LaunchedEffect(original) {
+        if (original != null) {
+            name = original.name
+            message = original.message
+        }
+    }
 
     Scaffold(
         scaffoldState = scaffoldState,

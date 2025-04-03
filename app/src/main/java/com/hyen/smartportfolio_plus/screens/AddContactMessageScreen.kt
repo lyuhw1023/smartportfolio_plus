@@ -7,15 +7,19 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.hyen.smartportfolio_plus.components.CommonAppBar
+import com.hyen.smartportfolio_plus.data.contact.Contact
+import com.hyen.smartportfolio_plus.viewmodel.ContactViewModel
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun AddContactMessageScreen(
     navController: NavController,
     scaffoldState: ScaffoldState,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    viewModel: ContactViewModel = viewModel()
 ) {
     var name by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
@@ -32,6 +36,14 @@ fun AddContactMessageScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
+                    // 저장할 메시지 생성 후 viewmodel 통해 저장
+                    val contact = Contact(
+                        name = name,
+                        message = message,
+                        userId = "tempUser" // 나중에 firebase로 교체
+                    )
+                    viewModel.insert(contact)
+
                     // 저장 후 뒤로 이동
                     navController.popBackStack()
                 },

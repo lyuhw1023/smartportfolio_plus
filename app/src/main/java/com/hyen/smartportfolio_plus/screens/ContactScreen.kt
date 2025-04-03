@@ -6,6 +6,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -41,7 +43,7 @@ fun ContactScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate("addContactMessage") },
+                onClick = { navController.navigate("contactForm") },
                 backgroundColor = MaterialTheme.colors.secondary
             ) {
                 Row(
@@ -61,7 +63,15 @@ fun ContactScreen(
                 .padding(padding)
         ) {
             items(contactList, key = { it.id}) { msg ->
-                ContactMessageItem(msg)
+                ContactMessageItem(
+                    msg = msg,
+                    onEdit = {
+                        navController.navigate("contactForm/${msg.id}")
+                    },
+                    onDelete = {
+                        // 삭제기능
+                    }
+                )
                 Divider()
             }
         }
@@ -69,10 +79,28 @@ fun ContactScreen(
 }
 
 @Composable
-fun ContactMessageItem(msg: Contact) {
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = msg.name, style = MaterialTheme.typography.subtitle1)
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(text = msg.message, style = MaterialTheme.typography.body2)
+fun ContactMessageItem(
+    msg: Contact,
+    onEdit: (Contact) -> Unit,
+    onDelete: (Contact) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = msg.name, style = MaterialTheme.typography.subtitle1)
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = msg.message, style = MaterialTheme.typography.body2)
+            }
+            IconButton(onClick = {onEdit(msg)}){
+                Icon(Icons.Default.Edit, contentDescription = "Edit")
+            }
+            IconButton(onClick = {onDelete(msg)}){
+                Icon(Icons.Default.Delete, contentDescription = "Delete")
+            }
+
+        }
     }
 }

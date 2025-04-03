@@ -5,6 +5,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -15,20 +16,26 @@ import com.hyen.smartportfolio_plus.viewmodel.ContactViewModel
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
-fun AddContactMessageScreen(
+fun ContactFormScreen(
     navController: NavController,
     scaffoldState: ScaffoldState,
     scope: CoroutineScope,
+    contactId: Int?, // null이면 등록, 값이 있으면 수정
     viewModel: ContactViewModel = viewModel()
 ) {
-    var name by remember { mutableStateOf("") }
-    var message by remember { mutableStateOf("") }
+    val contactList by viewModel.allContacts.observeAsState(emptyList())
+    val original = contactList.find { it.id == contactId }
+
+    var name by remember { mutableStateOf(original?.name ?: "") }
+    var message by remember { mutableStateOf(original?.message ?: "") }
+
+    val isEditMode = original != null
 
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
             CommonAppBar(
-                title = "Add Message",
+                title = if (isEditMode) "Edit Message" else "Add Message",
                 scaffoldState = scaffoldState,
                 scope = scope
             )
@@ -36,14 +43,17 @@ fun AddContactMessageScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    // 저장할 메시지 생성 후 viewmodel 통해 저장
-                    val contact = Contact(
-                        name = name,
-                        message = message,
-                        userId = "tempUser" // 나중에 firebase로 교체
-                    )
-                    viewModel.insert(contact)
-
+                    if (isEditMode) {
+                        val updated = original!!.copy(name = name, message = message)
+                        viewModel.update(updated)
+                    } else {
+                        val newContact = Contact(
+                            name = name,
+                            message = message,
+                            userId = "tempUser"
+                        )
+                        viewModel.insert(newContact)
+                    }
                     // 저장 후 뒤로 이동
                     navController.popBackStack()
                 },

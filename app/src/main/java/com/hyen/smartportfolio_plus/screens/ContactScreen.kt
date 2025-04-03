@@ -69,7 +69,7 @@ fun ContactScreen(
                         navController.navigate("contactForm/${msg.id}")
                     },
                     onDelete = {
-                        // 삭제기능
+                        viewModel.delete(msg)
                     }
                 )
                 Divider()

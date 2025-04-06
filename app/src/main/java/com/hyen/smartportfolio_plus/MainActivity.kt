@@ -3,21 +3,24 @@ package com.hyen.smartportfolio_plus
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
+import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.hyen.smartportfolio_plus.screens.HomeScreen
-import com.hyen.smartportfolio_plus.ui.theme.SmartportfolioPlusTheme
+import androidx.navigation.compose.rememberNavController
+import com.hyen.smartportfolio_plus.navigation.NavGraph
 import kotlinx.coroutines.launch
+import com.hyen.smartportfolio_plus.components.DrawerContent
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,36 +31,71 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// 네비게이션
 @Composable
 fun DrawerNavigationApp() {
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
+    val navController = rememberNavController()
 
     Scaffold(
         scaffoldState = scaffoldState,
         drawerContent = {
-            DrawerContent()
+            DrawerContent(navController = navController, scaffoldState = scaffoldState)
         }
     ) { paddingValues ->
-        HomeScreen(
-            onLogoutClick = {},
-            onMenuClick = { scope.launch { scaffoldState.drawerState.open() } },
-            paddingValues = paddingValues
+        NavGraph(
+            navController = navController,
+            paddingValues = paddingValues,
+            scaffoldState = scaffoldState,
+            scope = scope
         )
     }
 }
 
+// 네비게이션 메뉴
 @Composable
-fun DrawerContent() {
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = "About", modifier = Modifier.padding(8.dp))
-        Text(text = "Project", modifier = Modifier.padding(8.dp))
-        Text(text = "", modifier = Modifier.padding(8.dp))
-        Text(text = "About", modifier = Modifier.padding(8.dp))
+fun DrawerContent(navController: androidx.navigation.NavController, scaffoldState: ScaffoldState) {
+    val scope = rememberCoroutineScope()
+
+    Column {
+        Text(
+            text = "About",
+            style = MaterialTheme.typography.h5,
+            modifier = Modifier.padding(16.dp)
+        )
+        Divider(color = Color.Gray)
+
+        DrawerMenuItem(title = "Home", route = "home", navController = navController, scope = scope, scaffoldState = scaffoldState)
+        DrawerMenuItem(title = "About", route = "about", navController = navController, scope = scope, scaffoldState = scaffoldState)
+        DrawerMenuItem(title = "Project", route = "project", navController = navController, scope = scope, scaffoldState = scaffoldState)
+        DrawerMenuItem(title = "Contact", route = "contact", navController = navController, scope = scope, scaffoldState = scaffoldState)
+        DrawerMenuItem(title = "More", route = "more", navController = navController, scope = scope, scaffoldState = scaffoldState)
     }
 }
 
+// 개별 드로어 메뉴 항목
+@Composable
+fun DrawerMenuItem(
+    title: String,
+    route: String,
+    navController: androidx.navigation.NavController,
+    scope: kotlinx.coroutines.CoroutineScope,
+    scaffoldState: ScaffoldState
+) {
+    Text(
+        text = title,
+        modifier = Modifier
+            // 선택 시 이동
+            .clickable {
+                navController.navigate(route)
+                scope.launch { scaffoldState.drawerState.close() }
+            }
+            .padding(16.dp)
+    )
+}
 
+// 로그인 관련 코드 - 나중에 참고
 /*
 import android.content.Intent
 import android.os.Bundle

@@ -85,52 +85,205 @@ fun MoreScreen(
 
 @Composable
 fun ActivityList() {
-    val activities = listOf(
-        "\uD83C\uDFC6 2024년도 한림 오픈소스 SW 해커톤 우수상",
-        "\uD83C\uDFC6 2024년도 SW Week GitHub 이력서 콘테스트 해커톤 은상",
-        "\uD83C\uDFC5 2024년도 씨애랑 SW 전시회 인기상",
-        "\uD83C\uDFC5 2024년도 SW 캡스톤 디자인 - 팀 내 2등 수상",
-        "\uD83D\uDCBB 2024년도 프라이머 제2회 GenAI 해커톤 참여",
-        "\uD83D\uDCBB 2024년도 정보과학대학 서공제 생성형 AI 활용 : 마스코트 만들기 부문 본선 진출",
-        "\uD83D\uDCBB 2024년도 정보과학대학 서공제 완성작 부문 본선 진출",
-        "\uD83E\uDDD1\u200D\uD83D\uDCBC 2024년도 2학기 SW전공 멘토링(창의코딩 - 모두의 웹) 진행",
-        "\uD83C\uDFC5 2023년도 한림모여코딩 프로그램 우수활동 팀 선정",
-        "\uD83C\uDFC5 2022년도 정보과학대학 서공제 아이디어 부문 장려상",
-        "\uD83E\uDDD1\u200D\uD83D\uDCBC 2022년도 정보과학대학 학술동아리 노네임 회장",
-        "\uD83E\uDDD1\u200D\uD83D\uDCBC 2022년도 1학기 SW교과목 멘토링(컴퓨팅사고 AI기초) 진행",
-        "\uD83E\uDDD1\u200D\uD83D\uDCBC 2022년도 1학기 상생러닝디딤돌 멘토링 진행",
-        "\uD83E\uDDD1\u200D\uD83D\uDCBC 2022년도 1학기 SW전공 멘토링(파이썬) 진행",
-        "\uD83E\uDDD1\u200D\uD83D\uDCBC 2022년도 2학기 SW전공 멘토링(창의코딩웹) 진행",
-        "\uD83E\uDDE0 codeit 대학생 코딩 캠프 7기 수료",
-        "\uD83E\uDDE0 2021년도 1학기 전공 멘토링(C언어)",
-        "\uD83E\uDDE0 2021년도 2학기 전공 멘토링(파이썬)",
-        "\uD83E\uDDE0 2020년도 1학기 신입생 몰입형 SW코딩캠프",
-        "\uD83E\uDDE0 2020년도 2학기 인공지능 교육 특강 수료",
-        "\uD83E\uDDE0 2020년도 2학기 전공 멘토링(자바2)"
+    val awards = mapOf(
+        "2024" to listOf(
+            "한림 오픈소스 SW 해커톤 우수상",
+            "SW Week GitHub 이력서 콘테스트 해커톤 은상",
+            "씨애랑 SW 전시회 인기상",
+            "SW 캡스톤 디자인 - 팀 내 2등 수상"
+        ),
+        "2023" to listOf(
+            "한림모여코딩 프로그램 우수활동 팀 선정"
+        ),
+        "2022" to listOf(
+            "정보과학대학 서공제 아이디어 부문 장려상"
+        )
+    )
+    val participations = mapOf(
+        "2024" to listOf(
+            "프라이머 제2회 GenAI 해커톤 참여",
+            "정보과학대학 서공제 생성형 AI 활용 : 마스코트 만들기 부문 본선 진출",
+            "정보과학대학 서공제 완성작 부문 본선 진출"
+        )
+    )
+    val mentorings = mapOf(
+        "2024" to listOf(
+            "2학기 SW전공 멘토링(창의코딩 - 모두의 웹) 진행"
+        ),
+        "2022" to listOf(
+            "1학기 SW교과목 멘토링(컴퓨팅사고 AI기초) 진행",
+            "1학기 상생러닝디딤돌 멘토링 진행",
+            "1학기 SW전공 멘토링(파이썬) 진행",
+            "2학기 SW전공 멘토링(창의코딩웹) 진행"
+        )
+    )
+    val educations = mapOf(
+        "2021" to listOf(
+            "codeit 대학생 코딩 캠프 7기 수료",
+            "1학기 전공 멘토링(C언어)",
+            "2학기 전공 멘토링(파이썬)",
+        ),
+        "2020" to listOf(
+            "1학기 신입생 몰입형 SW코딩캠프",
+            "2학기 인공지능 교육 특강 수료",
+            "2학기 전공 멘토링(자바2)"
+        )
     )
     LazyColumn(
-        modifier = Modifier
-            .padding(16.dp),
+        modifier = Modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(activities) { activity ->
-            Card(
-                elevation = 4.dp,
-                shape = MaterialTheme.shapes.medium,
-                modifier = Modifier.fillMaxWidth()
-            ) {
+        // 수상 섹션
+        item { SectionHeader("\uD83C\uDFC6 수상") }
+        awards.forEach{ (year, items) ->
+            item {
                 Text(
-                    text = activity,
-                    style = MaterialTheme.typography.body1.copy(
-                        fontWeight = FontWeight.Medium
-                    ),
-                    modifier = Modifier.padding(16.dp)
+                    text = year,
+                    style = MaterialTheme.typography.body2.copy(color = Color.Gray)
                 )
+            }
+            items(items) { item ->
+                MoreCard("- $item")
+            }
+        }
+        // 해커톤 및 대회 섹션
+        item { SectionHeader("\uD83D\uDCA1 해커톤 & 대회 참여") }
+        participations.forEach{ (year, items) ->
+            item {
+                Text(
+                    text = year,
+                    style = MaterialTheme.typography.body2.copy(color = Color.Gray),
+                    modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+                )
+            }
+            items(items) { item ->
+                MoreCard("- $item")
+            }
+        }
+        // 멘토링 및 동아리 섹션
+        item { SectionHeader("\uD83D\uDC65 멘토링") }
+        mentorings.forEach{ (year, items) ->
+            item {
+                Text(
+                    text = year,
+                    style = MaterialTheme.typography.body2.copy(color = Color.Gray),
+                    modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+                )
+            }
+            items(items) { item ->
+                MoreCard("- $item")
+            }
+        }
+        // 캠프 및 수료 섹션
+        item { SectionHeader("\uD83D\uDCDA 캠프 & 수료") }
+        educations.forEach{ (year, items) ->
+            item {
+                Text(
+                    text = year,
+                    style = MaterialTheme.typography.body2.copy(color = Color.Gray),
+                    modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+                )
+            }
+            items(items) { item ->
+                MoreCard("- $item")
             }
         }
     }
 }
 
+@Composable
+fun CareerList() {
+    val study = mapOf(
+        "2024" to listOf(
+            "교내 정보과학대학 학술동아리 씨애랑 라떼팀",
+        ),
+        "2022" to listOf(
+            "정보과학대학 학술동아리 노네임 회장",
+        ),
+        "2021" to listOf(
+            "창업동아리 'TAG' 활동",
+            "창업동아리 '트라움' 활동",
+        ),
+        "2020" to listOf(
+            "소프트웨어융합대학 학술동아리 노네임 활동"
+        )
+    )
+    val work = mapOf(
+        "2024" to listOf(
+            "제 3대 정보과학대학 학생회 'Ready' 사무국 국장",
+            "중앙선거관리위원회 운영국"
+        ),
+        "2022" to listOf(
+            "제 1대 정보과학대학 학생회 'A:BLE' 기획국 국장",
+            "한림대학교 대동제 '그,_림' 축제준비위원회 밤부스팀"
+        ),
+        "2021" to listOf(
+            "제 3대 소프트웨어융합대학 학생회 'WUSM' 체육국 부장"
+        ),
+        "2020" to listOf(
+            "제 2대 소프트웨어융합대학 학생회 'STEP' 체육국 부원"
+        )
+    )
+    LazyColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // 학술 관련
+        item { SectionHeader("\uD83D\uDCDA 학술 동아리") }
+        study.forEach{ (year, items) ->
+            item {
+                Text(
+                    text = year,
+                    style = MaterialTheme.typography.body2.copy(color = Color.Gray)
+                )
+            }
+            items(items) { item ->
+                MoreCard("- $item")
+            }
+        }
+        // 해커톤 및 대회 섹션
+        item { SectionHeader("\uD83D\uDCE3 학생회 & 행사 운영") }
+        work.forEach{ (year, items) ->
+            item {
+                Text(
+                    text = year,
+                    style = MaterialTheme.typography.body2.copy(color = Color.Gray),
+                )
+            }
+            items(items) { item ->
+                MoreCard("- $item")
+            }
+        }
+    }
+}
+
+@Composable
+fun SectionHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold),
+        modifier = Modifier.padding(top = 40.dp)
+    )
+}
+
+@Composable
+fun MoreCard(text: String){
+    Card(
+        elevation = 4.dp,
+        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.body1.copy(
+                fontWeight = FontWeight.Medium
+            ),
+            modifier = Modifier.padding(8.dp)
+        )
+    }
+}
+
+/*
 
 @Composable
 fun CareerList() {
@@ -169,3 +322,4 @@ fun CareerList() {
         }
     }
 }
+*/

@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -84,6 +85,8 @@ fun ContactMessageItem(
     onEdit: (Contact) -> Unit,
     onDelete: (Contact) -> Unit
 ) {
+    var showDialog by remember {mutableStateOf(false)}
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -97,10 +100,31 @@ fun ContactMessageItem(
             IconButton(onClick = {onEdit(msg)}){
                 Icon(Icons.Default.Edit, contentDescription = "Edit")
             }
-            IconButton(onClick = {onDelete(msg)}){
+            IconButton(onClick = {showDialog = true}){
                 Icon(Icons.Default.Delete, contentDescription = "Delete")
             }
-
         }
+    }
+
+    // 삭제 시, 뜨는 확인창
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = {showDialog = false},
+            title = {Text("삭제 확인")},
+            text = {Text("정말로 이 메시지를 삭제할까요?")},
+            confirmButton = {
+                TextButton(onClick = {
+                    onDelete(msg)
+                    showDialog = false
+                }) {
+                    Text("삭제", color = Color.Black)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("취소", color = Color.Black)
+                }
+            }
+        )
     }
 }

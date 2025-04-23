@@ -23,12 +23,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.hyen.smartportfolio_plus.components.CommonAppBar
+import com.hyen.smartportfolio_plus.data.firestore.FireStoreProjectRepository
 import com.hyen.smartportfolio_plus.data.project.Project
+import com.hyen.smartportfolio_plus.data.project.ProjectDatabase
+import com.hyen.smartportfolio_plus.data.repository.ProjectRepository
 import com.hyen.smartportfolio_plus.viewmodel.ProjectViewModel
+import com.hyen.smartportfolio_plus.viewmodel.ProjectViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
@@ -37,10 +42,18 @@ fun ProjectFormScreen(
     scaffoldState: ScaffoldState,
     scope: CoroutineScope,
     projectId: Int?, // null이면 등록, 값이 있으면 수정
-    viewModel: ProjectViewModel = viewModel()
 ) {
-    val projectList by viewModel.allProjects.observeAsState(emptyList())
-    val original = projectList.find { it.id == projectId }
+    val context = LocalContext.current
+    val viewModel: ProjectViewModel = viewModel(
+        factory = ProjectViewModelFactory(
+            roomRepo = ProjectRepository(ProjectDatabase.getDatabase(context).projectDao()),
+            cloudRepo = FireStoreProjectRepository()
+        )
+    )
+
+
+    val projectList by viewModel.localProject.observeAsState(emptyList())
+    val original = projectList.find { it.localId == projectId }
 
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -78,7 +91,8 @@ fun ProjectFormScreen(
                                 detailLink = link,
                                 imageUrl = imageUrl
                             )
-                            viewModel.update(updated)
+                            viewModel.updateLocal(updated)
+                            viewModel.updateCloud(updated)
                         } else {
                             val newProject = Project(
                                 userId = "tempUser", // firebase 연동 후 변경
@@ -87,7 +101,7 @@ fun ProjectFormScreen(
                                 detailLink = link,
                                 imageUrl = imageUrl
                             )
-                            viewModel.insert(newProject)
+                            viewModel.insertCloud(newProject)
                         }
                         // 저장 후 뒤로 이동
                         navController.popBackStack()

@@ -32,9 +32,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.hyen.smartportfolio_plus.components.CommonAppBar
+import com.hyen.smartportfolio_plus.data.firestore.FireStoreProjectRepository
 import com.hyen.smartportfolio_plus.viewmodel.ProjectViewModel
 import kotlinx.coroutines.CoroutineScope
 import com.hyen.smartportfolio_plus.data.project.Project
+import com.hyen.smartportfolio_plus.data.project.ProjectDatabase
+import com.hyen.smartportfolio_plus.data.repository.ProjectRepository
+import com.hyen.smartportfolio_plus.viewmodel.ProjectViewModelFactory
 
 @Composable
 fun ProjectCard(
@@ -214,9 +218,15 @@ fun ProjectScreen(
     navController: NavController,
     scaffoldState: ScaffoldState,
     scope: CoroutineScope,
-    viewModel: ProjectViewModel = viewModel()
 ) {
-    val projectList by viewModel.allProjects.observeAsState(emptyList())
+    val context = LocalContext.current
+    val viewModel: ProjectViewModel = viewModel(
+        factory = ProjectViewModelFactory(
+            roomRepo = ProjectRepository(ProjectDatabase.getDatabase(context).projectDao()),
+            cloudRepo = FireStoreProjectRepository()
+        )
+    )
+    val projectList by viewModel.localProject.observeAsState(emptyList())
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -246,10 +256,11 @@ fun ProjectScreen(
         ProjectList(
             projects = projectList,
             onEdit = { project ->
-                navController.navigate("projectForm/${project.id}")
+                navController.navigate("projectForm/${project.localId}")
             },
             onDelete = { project ->
-                viewModel.delete(project)
+                viewModel.deleteLocal(project)
+                viewModel.deleteCloud(project)
             },
             modifier = Modifier.padding(padding)
         )

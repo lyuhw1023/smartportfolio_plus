@@ -1,35 +1,63 @@
 package com.hyen.smartportfolio_plus.viewmodel
 
-import android.app.Application
 import androidx.lifecycle.*
+import com.hyen.smartportfolio_plus.data.firestore.FireStoreProjectRepository
 import com.hyen.smartportfolio_plus.data.project.Project
-import com.hyen.smartportfolio_plus.data.project.ProjectDatabase
 import com.hyen.smartportfolio_plus.data.repository.ProjectRepository
 import kotlinx.coroutines.launch
 
 
-class ProjectViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository: ProjectRepository
+class ProjectViewModel(
+    private val roomRepo: ProjectRepository,
+    private val cloudRepo: FireStoreProjectRepository
+) : ViewModel() {
 
-    // 전체 프로젝트 목록 LiveData로 노출
-    val allProjects: LiveData<List<Project>>
+    val localProject: LiveData<List<Project>> = roomRepo.allProjects.asLiveData()
+    private val _cloudProjects = MutableLiveData<List<Project>>()
+    val cloudProject: LiveData<List<Project>> = _cloudProjects
 
-    init {
-        val projectDao = ProjectDatabase.getDatabase(application).projectDao()
-        repository = ProjectRepository(projectDao)
-        allProjects = repository.allProjects.asLiveData()
+    fun loadCloudProjects() {
+        cloudRepo.getAll { _cloudProjects.value = it }
     }
 
-    // 추가
-    fun insert(project: Project) = viewModelScope.launch {
-        repository.insert(project)
+    fun insertLocal(project: Project) = viewModelScope.launch {
+        roomRepo.insert(project)
     }
-    // 수정
-    fun update(project: Project) = viewModelScope.launch {
-        repository.update(project)
+
+    fun insertCloud(project: Project) {
+        cloudRepo.insert(project, { firestoreId ->
+            val updated = project.copy(firestoreId = firestoreId)
+            insertLocal(updated)
+        }, {
+            it.printStackTrace()
+        })
     }
-    // 삭제
-    fun delete(project: Project) = viewModelScope.launch {
-        repository.delete(project)
+
+    fun updateLocal(project: Project) = viewModelScope.launch {
+        roomRepo.update(project)
+    }
+
+    fun updateCloud(project: Project) {
+        project.firestoreId?.let {
+            cloudRepo.update(project, {
+                loadCloudProjects()
+            }, {
+                it.printStackTrace()
+            })
+        }
+    }
+
+    fun deleteLocal(project: Project) = viewModelScope.launch {
+        roomRepo.delete(project)
+    }
+
+    fun deleteCloud(project: Project) {
+        project.firestoreId?.let {
+            cloudRepo.delete(it, {
+                loadCloudProjects()
+            }, {
+                it.printStackTrace()
+            })
+        }
     }
 }

@@ -226,6 +226,11 @@ fun ProjectScreen(
             cloudRepo = FireStoreProjectRepository()
         )
     )
+
+    LaunchedEffect(Unit) {
+        viewModel.syncLocalToCloud()
+    }
+
     val projectList by viewModel.localProject.observeAsState(emptyList())
 
     Scaffold(

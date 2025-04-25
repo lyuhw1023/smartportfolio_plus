@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import com.hyen.smartportfolio_plus.data.firestore.FireStoreProjectRepository
 import com.hyen.smartportfolio_plus.data.project.Project
 import com.hyen.smartportfolio_plus.data.repository.ProjectRepository
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 
@@ -59,5 +60,23 @@ class ProjectViewModel(
                 it.printStackTrace()
             })
         }
+    }
+
+    fun syncLocalToCloud() = viewModelScope.launch {
+        roomRepo.allProjects
+            .first()
+            .filter { it.firestoreId == null }
+            .forEach { project ->
+                cloudRepo.insert(project, { firestoreId ->
+                    val updatedProject = project.copy(firestoreId = firestoreId)
+                    viewModelScope.launch {
+                        roomRepo.update(
+                            project.copy(firestoreId = firestoreId)
+                        )
+                    }
+                }, { error ->
+                    error.printStackTrace()
+                })
+            }
     }
 }

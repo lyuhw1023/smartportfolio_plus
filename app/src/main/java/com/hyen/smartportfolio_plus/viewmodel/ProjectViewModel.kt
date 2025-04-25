@@ -29,8 +29,9 @@ class ProjectViewModel(
         cloudRepo.insert(project, { firestoreId ->
             val updated = project.copy(firestoreId = firestoreId)
             insertLocal(updated)
-        }, {
-            it.printStackTrace()
+        }, { error ->
+            insertLocal(project)
+            error.printStackTrace()
         })
     }
 

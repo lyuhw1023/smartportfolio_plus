@@ -227,11 +227,13 @@ fun ProjectScreen(
         )
     )
 
-    LaunchedEffect(Unit) {
-        viewModel.syncLocalToCloud()
-    }
-
     val projectList by viewModel.localProject.observeAsState(emptyList())
+
+    LaunchedEffect(Unit) {
+        if (projectList.isNotEmpty()) {
+            viewModel.syncLocalToCloud()
+        }
+    }
 
     Scaffold(
         scaffoldState = scaffoldState,

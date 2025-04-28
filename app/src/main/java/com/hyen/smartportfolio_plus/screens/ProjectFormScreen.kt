@@ -101,7 +101,7 @@ fun ProjectFormScreen(
                                 detailLink = link,
                                 imageUrl = imageUrl
                             )
-                            viewModel.insertCloud(newProject)
+                            viewModel.insert(newProject)
                         }
                         // 저장 후 뒤로 이동
                         navController.popBackStack()

@@ -21,17 +21,20 @@ class ProjectViewModel(
         cloudRepo.getAll { _cloudProjects.value = it }
     }
 
-    fun insertLocal(project: Project) = viewModelScope.launch {
+    fun insert(project: Project) = viewModelScope.launch {
         roomRepo.insert(project)
-    }
 
-    fun insertCloud(project: Project) {
-        cloudRepo.insert(project, { firestoreId ->
-            val updated = project.copy(firestoreId = firestoreId)
-            insertLocal(updated)
-        }, { error ->
-            insertLocal(project)
-            error.printStackTrace()
+        val insertedProject = roomRepo.allProjects.first().findLast {
+            it.title == project.title && it.timestamp == project.timestamp
+        } ?: return@launch
+
+        cloudRepo.insert(insertedProject, { firestoreId ->
+            viewModelScope.launch {
+                val updated = insertedProject.copy(firestoreId = firestoreId)
+                roomRepo.update(updated)
+            }
+        }, {
+            it.printStackTrace()
         })
     }
 
@@ -71,9 +74,7 @@ class ProjectViewModel(
                 cloudRepo.insert(project, { firestoreId ->
                     val updatedProject = project.copy(firestoreId = firestoreId)
                     viewModelScope.launch {
-                        roomRepo.update(
-                            project.copy(firestoreId = firestoreId)
-                        )
+                        roomRepo.update(updatedProject)
                     }
                 }, { error ->
                     error.printStackTrace()

@@ -25,8 +25,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.hyen.smartportfolio_plus.R
+import com.hyen.smartportfolio_plus.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -35,6 +37,7 @@ fun DrawerContent(
     scaffoldState: ScaffoldState
 ) {
     val scope = rememberCoroutineScope()
+    val authViewModel: AuthViewModel = viewModel()
 
     Column(modifier = Modifier.background(Color.White)) {
 
@@ -77,7 +80,15 @@ fun DrawerContent(
         // Others 메뉴 섹션
         DrawerSection(title = "Others")
         DrawerMenuItem("Contact", R.drawable.navi_contact, "contact", navController, scope, scaffoldState)
-        DrawerMenuItem("Logout", R.drawable.logout, "", navController, scope, scaffoldState)
+        DrawerMenuItem("Logout", R.drawable.logout, "", navController, scope, scaffoldState,
+            overrideOnClick = {
+                authViewModel.signOut()
+                navController.navigate("login") {
+                    popUpTo("home") { inclusive = true }
+                }
+                scope.launch { scaffoldState.drawerState.close() }
+            }
+        )
 
     }
 }
@@ -105,14 +116,19 @@ fun DrawerMenuItem(
     route: String,
     navController: androidx.navigation.NavController,
     scope: kotlinx.coroutines.CoroutineScope,
-    scaffoldState: ScaffoldState
+    scaffoldState: ScaffoldState,
+    overrideOnClick: (() -> Unit)? = null
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .clickable {
-                navController.navigate(route)
-                scope.launch { scaffoldState.drawerState.close() }
+                if (overrideOnClick != null) {
+                    overrideOnClick()
+                } else {
+                    navController.navigate(route)
+                    scope.launch { scaffoldState.drawerState.close() }
+                }
             }
             .padding(12.dp)
     ) {

@@ -60,16 +60,6 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            val navController = rememberNavController()
-            if (authViewModel.isLoggedIn()) {
-                navController.navigate("home") { popUpTo("login") { inclusive = true} }
-            } else {
-                LoginScreen(
-                    onClickSignIn = {
-                        googleSignInLauncher.launch(authViewModel.getSignInIntent())
-                    }
-                )
-            }
             DrawerNavigationApp(
                 authViewModel = authViewModel,
                 googleSignInLauncher = googleSignInLauncher

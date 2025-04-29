@@ -12,7 +12,9 @@ class AuthViewModel(app: Application) : AndroidViewModel(app) {
         .getString(R.string.default_web_client_id)
     private val authManager = FirebaseAuthManager(app.applicationContext, clientId)
 
-    val userIdLiveData = MutableLiveData<String?>()
+    val userIdLiveData = MutableLiveData<String?>().apply {
+        value = authManager.getCurrentUserId()
+    }
 
     val errorLiveData = MutableLiveData<String?>()
 

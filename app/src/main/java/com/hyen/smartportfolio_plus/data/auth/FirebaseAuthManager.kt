@@ -49,6 +49,9 @@ class FirebaseAuthManager(context: Context, clientId: String) {
             }
     }
 
+    // 현재 로그인된 사용자 UID 반환
+    fun getCurrentUserId(): String? = auth.currentUser?.uid
+
     // 로그아웃
     fun signOut(onComplete: () -> Unit) {
         googleSignInClient.signOut().addOnCompleteListener {

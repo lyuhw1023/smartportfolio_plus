@@ -29,9 +29,10 @@ class AuthViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     // 로그아웃
-    fun signOut() {
-        authManager.signOut() {
+    fun signOut(onComplete: () -> Unit) {
+        authManager.signOut {
             userIdLiveData.postValue(null)
+            onComplete()
         }
     }
 

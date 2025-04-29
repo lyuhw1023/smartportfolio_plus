@@ -92,11 +92,12 @@ fun DrawerContent(
         DrawerMenuItem("Contact", R.drawable.navi_contact, "contact", navController, scope, scaffoldState)
         DrawerMenuItem("Logout", R.drawable.logout, "", navController, scope, scaffoldState,
             overrideOnClick = {
-                authViewModel.signOut()
-                navController.navigate("login") {
-                    popUpTo("home") { inclusive = true }
+                authViewModel.signOut {
+                    navController.navigate("login") {
+                        popUpTo("home") { inclusive = true }
+                    }
+                    scope.launch { scaffoldState.drawerState.close() }
                 }
-                scope.launch { scaffoldState.drawerState.close() }
             }
         )
 

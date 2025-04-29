@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hyen.smartportfolio_plus.R
+import com.hyen.smartportfolio_plus.ui.theme.primary
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -67,7 +68,7 @@ fun CommonAppBar(
                 )
             }
         },
-        backgroundColor = Color(0xFF6495ED),
+        backgroundColor = primary,
         elevation = 8.dp
     )
 }

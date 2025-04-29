@@ -17,6 +17,8 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,11 +35,19 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun DrawerContent(
-    navController: androidx.navigation.NavController,
+    navController: NavController,
     scaffoldState: ScaffoldState
 ) {
     val scope = rememberCoroutineScope()
     val authViewModel: AuthViewModel = viewModel()
+
+    val userId by authViewModel.userIdLiveData.observeAsState()
+
+    val userType = when {
+        userId == null -> "비회원"
+        userId == "0ThckGgo2xaw6HENVlJHoIokTCx1" -> "관리자"
+        else -> "회원"
+    }
 
     Column(modifier = Modifier.background(Color.White)) {
 
@@ -49,7 +59,7 @@ fun DrawerContent(
                 .background(Color(0xFF696969))
         ){
             Text(
-                text = "SmartPortfolio",
+                text = userType,
                 style = MaterialTheme.typography.h4.copy(
                     fontWeight = FontWeight.Normal,
                     fontSize = 25.sp,

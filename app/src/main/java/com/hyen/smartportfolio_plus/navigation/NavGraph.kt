@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.hyen.smartportfolio_plus.data.auth.UserType
 import com.hyen.smartportfolio_plus.screens.AboutScreen
 import com.hyen.smartportfolio_plus.screens.ContactFormScreen
 import com.hyen.smartportfolio_plus.screens.ContactScreen
@@ -36,6 +37,8 @@ fun NavGraph(
     authViewModel: AuthViewModel,
     googleSignInLauncher: ActivityResultLauncher<Intent>
 ) {
+    val userType by authViewModel.userTypeLiveData.observeAsState(UserType.GUEST)
+
     NavHost(
         navController = navController,
         startDestination = "login"
@@ -88,7 +91,8 @@ fun NavGraph(
             ProjectScreen(
                 navController = navController,
                 scaffoldState = scaffoldState,
-                scope = scope
+                scope = scope,
+                userType = userType,
             )
         }
         composable("projectForm") {
@@ -118,7 +122,8 @@ fun NavGraph(
             ContactScreen(
                 navController = navController,
                 scaffoldState = scaffoldState,
-                scope = scope
+                scope = scope,
+                userType = userType
             )
         }
         composable("contactForm") {

@@ -32,6 +32,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.hyen.smartportfolio_plus.components.CommonAppBar
+import com.hyen.smartportfolio_plus.data.auth.UserType
 import com.hyen.smartportfolio_plus.data.firestore.FireStoreProjectRepository
 import com.hyen.smartportfolio_plus.viewmodel.ProjectViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -44,7 +45,8 @@ import com.hyen.smartportfolio_plus.viewmodel.ProjectViewModelFactory
 fun ProjectCard(
     project: Project,
     onEdit: (Project) -> Unit,
-    onDelete: (Project) -> Unit
+    onDelete: (Project) -> Unit,
+    userType: UserType
 ) {
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
@@ -71,11 +73,13 @@ fun ProjectCard(
                     ),
                     modifier = Modifier.weight(1f)
                 )
-                IconButton(onClick = { onEdit(project) }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit")
-                }
-                IconButton(onClick = { showDialog = true }) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                if (userType == UserType.ADMIN) {
+                    IconButton(onClick = { onEdit(project) }) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit")
+                    }
+                    IconButton(onClick = { showDialog = true }) {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete")
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -140,7 +144,8 @@ fun ProjectList(
     projects: List<Project>,
     onEdit: (Project) -> Unit,
     onDelete: (Project) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    userType: UserType
 ) {
     if (projects.isEmpty()) {
         Box(
@@ -204,7 +209,8 @@ fun ProjectList(
                         ProjectCard(
                             project = project,
                             onEdit = onEdit,
-                            onDelete = onDelete
+                            onDelete = onDelete,
+                            userType = userType
                         )
                     }
                 }
@@ -218,6 +224,7 @@ fun ProjectScreen(
     navController: NavController,
     scaffoldState: ScaffoldState,
     scope: CoroutineScope,
+    userType: UserType
 ) {
     val context = LocalContext.current
     val viewModel: ProjectViewModel = viewModel(
@@ -229,12 +236,6 @@ fun ProjectScreen(
 
     val projectList by viewModel.localProject.observeAsState(emptyList())
 
-    LaunchedEffect(Unit) {
-        if (projectList.isNotEmpty()) {
-            viewModel.syncLocalToCloud()
-        }
-    }
-
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
@@ -245,17 +246,19 @@ fun ProjectScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate("projectForm") },
-                backgroundColor = MaterialTheme.colors.secondary
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 12.dp)
+            if (userType == UserType.ADMIN) {
+                FloatingActionButton(
+                    onClick = { navController.navigate("projectForm") },
+                    backgroundColor = MaterialTheme.colors.secondary
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add")
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("Add Project")
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "Add")
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Add Project")
+                    }
                 }
             }
         }
@@ -267,9 +270,9 @@ fun ProjectScreen(
             },
             onDelete = { project ->
                 viewModel.deleteLocal(project)
-                viewModel.deleteCloud(project)
             },
-            modifier = Modifier.padding(padding)
+            modifier = Modifier.padding(padding),
+            userType = userType
         )
     }
 }

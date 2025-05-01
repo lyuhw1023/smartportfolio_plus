@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.hyen.smartportfolio_plus.R
+import com.hyen.smartportfolio_plus.data.auth.UserType
 import com.hyen.smartportfolio_plus.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
@@ -40,13 +41,12 @@ fun DrawerContent(
 ) {
     val scope = rememberCoroutineScope()
     val authViewModel: AuthViewModel = viewModel()
+    val userType by authViewModel.userTypeLiveData.observeAsState(UserType.GUEST)
 
-    val userId by authViewModel.userIdLiveData.observeAsState()
-
-    val userType = when {
-        userId == null -> "비회원"
-        userId == "0ThckGgo2xaw6HENVlJHoIokTCx1" -> "관리자"
-        else -> "회원"
+    val user = when(userType) {
+        UserType.GUEST -> "비회원"
+        UserType.MEMBER -> "회원"
+        UserType.ADMIN -> "관리자"
     }
 
     Column(modifier = Modifier.background(Color.White)) {
@@ -59,7 +59,7 @@ fun DrawerContent(
                 .background(Color(0xFF696969))
         ){
             Text(
-                text = userType,
+                text = user,
                 style = MaterialTheme.typography.h4.copy(
                     fontWeight = FontWeight.Normal,
                     fontSize = 25.sp,

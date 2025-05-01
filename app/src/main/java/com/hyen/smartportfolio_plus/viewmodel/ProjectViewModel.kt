@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import com.hyen.smartportfolio_plus.data.firestore.FireStoreProjectRepository
 import com.hyen.smartportfolio_plus.data.project.Project
 import com.hyen.smartportfolio_plus.data.repository.ProjectRepository
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -14,71 +15,64 @@ class ProjectViewModel(
 ) : ViewModel() {
 
     val localProject: LiveData<List<Project>> = roomRepo.allProjects.asLiveData()
-    private val _cloudProjects = MutableLiveData<List<Project>>()
-    val cloudProject: LiveData<List<Project>> = _cloudProjects
+    private val _error = MutableLiveData<String?>()
+    val error: LiveData<String?> = _error
 
-    fun loadCloudProjects() {
-        cloudRepo.getAll { _cloudProjects.value = it }
+    init {
+        // 앱 시작 시, 아직 Firestore 에 동기화되지 않은 로컬 항목만 가져와서 동기화
+        viewModelScope.launch {
+            val unsynced = roomRepo.allProjects.first()
+                .filter { it.firestoreId == null }
+            unsynced.forEach { project ->
+                cloudRepo.insert(project, { firestoreId ->
+                    // 동기화 성공 시, local DB 에 firestoreId 업데이트
+                    viewModelScope.launch {
+                        roomRepo.update(project.copy(firestoreId = firestoreId))
+                    }
+                }, { ex ->
+                    _error.postValue("Firestore insert 오류: ${ex.message}")
+                })
+            }
+        }
     }
 
-    fun insert(project: Project) = viewModelScope.launch {
+    fun insertLocal(project: Project) = viewModelScope.launch {
+        // 로컬에 먼저 저장
         roomRepo.insert(project)
+        // 방금 저장된 항목
+        val inserted = roomRepo.allProjects.first()
+            .find { it.timestamp == project.timestamp && it.firestoreId == null }
+            ?: return@launch
 
-        val insertedProject = roomRepo.allProjects.first().findLast {
-            it.title == project.title && it.timestamp == project.timestamp
-        } ?: return@launch
-
-        cloudRepo.insert(insertedProject, { firestoreId ->
+        // Firestore에 등록하고, 완료되면 로컬에 firestoreId 업데이트
+        cloudRepo.insert(inserted, { id ->
             viewModelScope.launch {
-                val updated = insertedProject.copy(firestoreId = firestoreId)
-                roomRepo.update(updated)
+                roomRepo.update(inserted.copy(firestoreId = id))
             }
-        }, {
-            it.printStackTrace()
+        }, { ex ->
+            _error.postValue("Firestore insert 오류: ${ex.message}")
         })
     }
 
     fun updateLocal(project: Project) = viewModelScope.launch {
+        // 로컬에 먼저 업데이트
         roomRepo.update(project)
-    }
-
-    fun updateCloud(project: Project) {
-        project.firestoreId?.let {
-            cloudRepo.update(project, {
-                loadCloudProjects()
-            }, {
-                it.printStackTrace()
+        // 이미 firestoreId 있으면 cloud 갱신
+        project.firestoreId?.let { id ->
+            cloudRepo.update(project, {}, { ex ->
+                _error.postValue("Firestore update 오류: ${ex.message}")
             })
         }
     }
 
     fun deleteLocal(project: Project) = viewModelScope.launch {
-        roomRepo.delete(project)
-    }
-
-    fun deleteCloud(project: Project) {
-        project.firestoreId?.let {
-            cloudRepo.delete(it, {
-                loadCloudProjects()
-            }, {
-                it.printStackTrace()
+        // cloud 먼저 삭제
+        project.firestoreId?.let { id ->
+            cloudRepo.delete(id, {}, { ex ->
+                _error.postValue("Firestore delete 오류: ${ex.message}")
             })
         }
-    }
-
-    fun syncLocalToCloud() = viewModelScope.launch {
-        roomRepo.allProjects
-            .first()
-            .filter { it.firestoreId == null }
-            .forEach { project ->
-                cloudRepo.insert(project, { firestoreId ->
-                    val updatedProject = project.copy(firestoreId = firestoreId)
-                    viewModelScope.launch {
-                        roomRepo.update(updatedProject)
-                    }
-                }, { error ->
-                    error.printStackTrace()
-                })
-            }
+        // 이후 로컬 삭제
+        roomRepo.delete(project)
     }
 }

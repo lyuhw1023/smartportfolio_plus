@@ -27,7 +27,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.hyen.smartportfolio_plus.R
 import com.hyen.smartportfolio_plus.components.CommonAppBar
+import com.hyen.smartportfolio_plus.data.auth.FirebaseAuthManager
 import com.hyen.smartportfolio_plus.data.firestore.FireStoreProjectRepository
 import com.hyen.smartportfolio_plus.data.project.Project
 import com.hyen.smartportfolio_plus.data.project.ProjectDatabase
@@ -35,6 +37,7 @@ import com.hyen.smartportfolio_plus.data.repository.ProjectRepository
 import com.hyen.smartportfolio_plus.viewmodel.ProjectViewModel
 import com.hyen.smartportfolio_plus.viewmodel.ProjectViewModelFactory
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProjectFormScreen(
@@ -44,6 +47,13 @@ fun ProjectFormScreen(
     projectId: Int?, // null이면 등록, 값이 있으면 수정
 ) {
     val context = LocalContext.current
+
+    // 현재 UID
+    val authManager = FirebaseAuthManager(
+        context,
+        context.getString(R.string.default_web_client_id)
+    ).getCurrentUserId().orEmpty()
+
     val viewModel: ProjectViewModel = viewModel(
         factory = ProjectViewModelFactory(
             roomRepo = ProjectRepository(ProjectDatabase.getDatabase(context).projectDao()),
@@ -83,29 +93,32 @@ fun ProjectFormScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    if (title.isNotBlank() && description.isNotBlank() && link.isNotBlank()) {
-                        if (isEdit) {
-                            val updated = original!!.copy(
-                                title = title,
-                                description = description,
-                                detailLink = link,
-                                imageUrl = imageUrl
-                            )
-                            viewModel.updateLocal(updated)
-                            viewModel.updateCloud(updated)
-                        } else {
-                            val newProject = Project(
-                                userId = "tempUser", // firebase 연동 후 변경
-                                title = title,
-                                description = description,
-                                detailLink = link,
-                                imageUrl = imageUrl
-                            )
-                            viewModel.insert(newProject)
-                        }
-                        // 저장 후 뒤로 이동
-                        navController.popBackStack()
+                    if (title.isBlank() || description.isBlank()) return@FloatingActionButton
+                    if (isEdit) {
+                        // 수정
+                        val updated = original!!.copy(
+                            title = title,
+                            description = description,
+                            detailLink = link,
+                            imageUrl = imageUrl
+                        )
+                        viewModel.updateLocal(updated)
+                    } else {
+                        // 신규 등록
+                        val newProject = Project(
+                            userId = authManager,
+                            title = title,
+                            description = description,
+                            detailLink = link,
+                            imageUrl = imageUrl
+                        )
+                        viewModel.insertLocal(newProject)
                     }
+                    scope.launch {
+                        scaffoldState.snackbarHostState.showSnackbar("등록되었습니다")
+                    }
+                    // 저장 후 뒤로 이동
+                    navController.popBackStack()
                 },
                 backgroundColor = MaterialTheme.colors.secondary
             ) {

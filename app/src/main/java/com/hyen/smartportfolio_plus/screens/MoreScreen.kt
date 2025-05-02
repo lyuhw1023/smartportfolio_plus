@@ -3,13 +3,12 @@ package com.hyen.smartportfolio_plus.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.ScaffoldState
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -26,12 +25,8 @@ import com.hyen.smartportfolio_plus.components.CommonAppBar
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.material.icons.filled.EmojiEvents
 
 
 @Composable
@@ -131,7 +126,8 @@ fun ActivityList() {
     )
     LazyColumn(
         modifier = Modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(bottom = 30.dp)
     ) {
         // 수상 섹션
         item { SectionHeader("\uD83C\uDFC6 수상") }
@@ -146,6 +142,7 @@ fun ActivityList() {
                 MoreCard("- $item")
             }
         }
+        item { Spacer(modifier = Modifier.height(20.dp)) }
         // 해커톤 및 대회 섹션
         item { SectionHeader("\uD83D\uDCA1 해커톤 & 대회 참여") }
         participations.forEach{ (year, items) ->
@@ -153,13 +150,13 @@ fun ActivityList() {
                 Text(
                     text = year,
                     style = MaterialTheme.typography.body2.copy(color = Color.Gray),
-                    modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
                 )
             }
             items(items) { item ->
                 MoreCard("- $item")
             }
         }
+        item { Spacer(modifier = Modifier.height(20.dp)) }
         // 멘토링 및 동아리 섹션
         item { SectionHeader("\uD83D\uDC65 멘토링") }
         mentorings.forEach{ (year, items) ->
@@ -167,13 +164,13 @@ fun ActivityList() {
                 Text(
                     text = year,
                     style = MaterialTheme.typography.body2.copy(color = Color.Gray),
-                    modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
                 )
             }
             items(items) { item ->
                 MoreCard("- $item")
             }
         }
+        item { Spacer(modifier = Modifier.height(20.dp)) }
         // 캠프 및 수료 섹션
         item { SectionHeader("\uD83D\uDCDA 캠프 & 수료") }
         educations.forEach{ (year, items) ->
@@ -181,7 +178,6 @@ fun ActivityList() {
                 Text(
                     text = year,
                     style = MaterialTheme.typography.body2.copy(color = Color.Gray),
-                    modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
                 )
             }
             items(items) { item ->
@@ -195,7 +191,7 @@ fun ActivityList() {
 fun CareerList() {
     val study = mapOf(
         "2024" to listOf(
-            "교내 정보과학대학 학술동아리 씨애랑 라떼팀",
+            "정보과학대학 학술동아리 씨애랑 라떼팀",
         ),
         "2022" to listOf(
             "정보과학대학 학술동아리 노네임 회장",
@@ -226,7 +222,8 @@ fun CareerList() {
     )
     LazyColumn(
         modifier = Modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(bottom = 30.dp)
     ) {
         // 학술 관련
         item { SectionHeader("\uD83D\uDCDA 학술 동아리") }
@@ -241,6 +238,7 @@ fun CareerList() {
                 MoreCard("- $item")
             }
         }
+        item { Spacer(modifier = Modifier.height(20.dp)) }
         // 해커톤 및 대회 섹션
         item { SectionHeader("\uD83D\uDCE3 학생회 & 행사 운영") }
         work.forEach{ (year, items) ->
@@ -262,7 +260,6 @@ fun SectionHeader(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold),
-        modifier = Modifier.padding(top = 40.dp)
     )
 }
 

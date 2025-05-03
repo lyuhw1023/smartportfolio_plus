@@ -4,7 +4,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.hyen.smartportfolio_plus.data.project.Project
 
-object FirestoreService {
+object FireStoreProjectService {
     private val db = Firebase.firestore
 
     fun addProject(project: Project, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {

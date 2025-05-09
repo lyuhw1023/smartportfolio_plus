@@ -7,13 +7,21 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.hyen.smartportfolio_plus.R
 import com.hyen.smartportfolio_plus.components.CommonAppBar
+import com.hyen.smartportfolio_plus.data.auth.FirebaseAuthManager
 import com.hyen.smartportfolio_plus.data.contact.Contact
+import com.hyen.smartportfolio_plus.data.contact.ContactDatabase
+import com.hyen.smartportfolio_plus.data.firestore.FireStoreContactRepository
+import com.hyen.smartportfolio_plus.data.repository.ContactRepository
 import com.hyen.smartportfolio_plus.viewmodel.ContactViewModel
+import com.hyen.smartportfolio_plus.viewmodel.ContactViewModelFactory
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun ContactFormScreen(
@@ -21,10 +29,25 @@ fun ContactFormScreen(
     scaffoldState: ScaffoldState,
     scope: CoroutineScope,
     contactId: Int?, // null이면 등록, 값이 있으면 수정
-    viewModel: ContactViewModel = viewModel()
 ) {
-    val contactList by viewModel.allContacts.observeAsState(emptyList())
-    val original = contactList.find { it.id == contactId }
+
+    val context = LocalContext.current
+
+    // 현재 UID
+    val uid = FirebaseAuthManager(
+        context,
+        context.getString(R.string.default_web_client_id)
+    ).getCurrentUserId().orEmpty()
+
+    val viewModel: ContactViewModel = viewModel(
+        factory = ContactViewModelFactory(
+            roomRepo = ContactRepository(ContactDatabase.getDatabase(context).contactDao()),
+            cloudRepo = FireStoreContactRepository()
+        )
+    )
+
+    val contactList by viewModel.localContact.observeAsState(emptyList())
+    val original = contactList.find { it.localId == contactId }
 
     var name by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
@@ -39,10 +62,9 @@ fun ContactFormScreen(
     }
 
     Scaffold(
-        scaffoldState = scaffoldState,
         topBar = {
             CommonAppBar(
-                title = if (isEditMode) "Edit Message" else "Add Message",
+                title = if (isEditMode) "Message 수정하기" else "Message 남기기",
                 scaffoldState = scaffoldState,
                 scope = scope
             )
@@ -52,17 +74,23 @@ fun ContactFormScreen(
                 onClick = {
                     if (isEditMode) {
                         val updated = original!!.copy(name = name, message = message)
-                        viewModel.update(updated)
+                        viewModel.updateLocal(updated)
                     } else {
                         val newContact = Contact(
                             name = name,
                             message = message,
-                            userId = "tempUser"
+                            userId = uid
                         )
-                        viewModel.insert(newContact)
+                        viewModel.insertLocal(newContact)
                     }
-                    // 저장 후 뒤로 이동
                     navController.popBackStack()
+
+                    scope.launch {
+                        scaffoldState.snackbarHostState.showSnackbar(
+                            message = if (isEditMode) "수정되었습니다." else "등록되었습니다.",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
                 },
                 backgroundColor = MaterialTheme.colors.secondary
             ) {

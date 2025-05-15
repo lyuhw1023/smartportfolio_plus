@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hyen.smartportfolio_plus.R
 import com.hyen.smartportfolio_plus.ui.theme.primary
+import com.hyen.smartportfolio_plus.ui.theme.primaryClick
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -27,26 +28,25 @@ fun CommonAppBar(
     scaffoldState: ScaffoldState,
     scope: CoroutineScope
 ) {
-    TopAppBar(
-        title = {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ){
-                Text(
-                    text = title,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-            }
-        },
-        // 메뉴 아이콘
-        navigationIcon = {
+    Surface(
+        color = primary,
+        elevation = 8.dp
+    ) {
+        Box(
+            modifier = Modifier.fillMaxWidth().size(60.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = title,
+                fontSize = 23.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
             IconButton(
                 onClick = {
                     scope.launch { scaffoldState.drawerState.open() }
-                }
+                },
+                modifier = Modifier.align(Alignment.CenterStart)
             ) {
                 Icon(
                     Icons.Filled.Menu,
@@ -54,23 +54,8 @@ fun CommonAppBar(
                     tint = Color.White
                 )
             }
-        },
-        // 로그아웃 아이콘
-        actions = {
-            IconButton(
-                onClick = { /*firebase 로그아웃 기능*/ }
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.logout),
-                    contentDescription = "Logout",
-                    modifier = Modifier.size(25.dp),
-                    tint = Color.White
-                )
-            }
-        },
-        backgroundColor = primary,
-        elevation = 8.dp
-    )
+        }
+    }
 }
 
 @Preview(showBackground = true)

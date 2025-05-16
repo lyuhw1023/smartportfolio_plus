@@ -39,6 +39,8 @@ import kotlinx.coroutines.CoroutineScope
 import com.hyen.smartportfolio_plus.data.project.Project
 import com.hyen.smartportfolio_plus.data.project.ProjectDatabase
 import com.hyen.smartportfolio_plus.data.repository.ProjectRepository
+import com.hyen.smartportfolio_plus.ui.theme.primary
+import com.hyen.smartportfolio_plus.ui.theme.primaryClick
 import com.hyen.smartportfolio_plus.viewmodel.ProjectViewModelFactory
 
 @Composable
@@ -249,15 +251,24 @@ fun ProjectScreen(
             if (userType == UserType.ADMIN) {
                 FloatingActionButton(
                     onClick = { navController.navigate("projectForm") },
-                    backgroundColor = MaterialTheme.colors.secondary
+                    backgroundColor = primary,
+                    modifier = Modifier.padding(vertical = 10.dp, horizontal = 10.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 12.dp)
+                        modifier = Modifier.padding(horizontal = 20.dp)
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = "Add")
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = "Add",
+                            tint = Color.White
+                        )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Add Project")
+                        Text(
+                            "추가하기",
+                            fontSize = 17.sp,
+                            color = Color.White
+                        )
                     }
                 }
             }

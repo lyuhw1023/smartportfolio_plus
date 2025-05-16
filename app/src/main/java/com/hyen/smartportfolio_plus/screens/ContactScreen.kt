@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.hyen.smartportfolio_plus.R
@@ -25,6 +26,7 @@ import com.hyen.smartportfolio_plus.data.contact.Contact
 import com.hyen.smartportfolio_plus.data.contact.ContactDatabase
 import com.hyen.smartportfolio_plus.data.firestore.FireStoreContactRepository
 import com.hyen.smartportfolio_plus.data.repository.ContactRepository
+import com.hyen.smartportfolio_plus.ui.theme.primary
 import com.hyen.smartportfolio_plus.viewmodel.ContactViewModel
 import com.hyen.smartportfolio_plus.viewmodel.ContactViewModelFactory
 import kotlinx.coroutines.CoroutineScope
@@ -110,15 +112,24 @@ fun ContactScreen(
             if (userType == UserType.MEMBER) {
                 FloatingActionButton(
                     onClick = { navController.navigate("contactForm") },
-                    backgroundColor = MaterialTheme.colors.secondary
+                    backgroundColor = primary,
+                    modifier = Modifier.padding(vertical = 10.dp, horizontal = 10.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 12.dp)
+                        modifier = Modifier.padding(horizontal = 20.dp)
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = "Add")
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = "Add",
+                            tint = Color.White
+                        )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Add Message")
+                        Text(
+                            "추가하기",
+                            fontSize = 17.sp,
+                            color = Color.White
+                        )
                     }
                 }
             }

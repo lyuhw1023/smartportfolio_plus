@@ -57,14 +57,14 @@ fun HomeScreen(
                 MenuCard(
                     icon = R.drawable.project,
                     title = "기능 소개",
-                    description = "- About: 개인 소개 및 스킬 정보.\n\n- Project: 프로젝트 목록과 세부 내용.\n\n- Contact: 연락 정보 및 ~ 제공.\n\n- More: 기타 활동(대회,동아리 등)"
+                    description = "- Home: SmartPortfolio 앱 소개.\n\n- About: 개인 소개 및 스킬 정보.\n\n- Project: 프로젝트 목록과 세부 내용.\n\n- Contact: 개발자에게 직접 메시지를 남길 수 있음.\n\n- More: 기타 활동(대회,동아리 등)"
                 )
             }
             item {
                 MenuCard(
                     icon = R.drawable.more,
                     title = "버전 정보 & 사용 기술",
-                    description = "- androidstudio, jdk,버전들\n\n- 사용 기술: Kotlin, Jetpack Compose, Firebase, MVVM 패턴 적용"
+                    description = "- AndroidStudio\n- JDK 17\n- Gradle 8.10\n\n- Kotlin, Jetpack Compose 기반\n- MVVM 아키텍쳐 적용\n- Room + Firebase Firestore 병행 저장 구조\n- Firebase Auth 기반 사용자 권한 관리"
                 )
             }
             item {
@@ -100,9 +100,9 @@ fun HomeScreen(
                             style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(text = "이름: 유혜원",style = TextStyle(fontSize = 11.sp, color = Color.DarkGray))
-                        Text(text = "이메일: lyuhw11023@gmail.com",style = TextStyle(fontSize = 11.sp, color = Color.DarkGray))
-                        Text(text = "깃허브: https://github.com/lyuhw1023",style = TextStyle(fontSize = 11.sp, color = Color.DarkGray))
+                        Text(text = "이름: 유혜원",style = TextStyle(fontSize = 13.sp, color = Color.DarkGray))
+                        Text(text = "이메일: lyuhw11023@gmail.com",style = TextStyle(fontSize = 13.sp, color = Color.DarkGray))
+                        Text(text = "깃허브: https://github.com/lyuhw1023",style = TextStyle(fontSize = 13.sp, color = Color.DarkGray))
                     }
                 }
             }
@@ -132,6 +132,7 @@ fun MenuCard(icon: Int, title: String, description: String) {
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Column {
+                    // 제목
                     Text(
                         text = title,
                         fontSize = 20.sp,
@@ -139,11 +140,13 @@ fun MenuCard(icon: Int, title: String, description: String) {
                         color = Color(0xFF6495ED)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
+                    // 내용
                     Text(
                         text = description,
-                        fontSize = 12.sp,
+                        fontSize = 15.sp,
                         color = Color.DarkGray
                     )
+                    Spacer(modifier = Modifier.height(15.dp))
                 }
             }
         }

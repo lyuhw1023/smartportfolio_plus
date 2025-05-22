@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -26,7 +27,9 @@ import kotlinx.coroutines.launch
 fun CommonAppBar(
     title: String,
     scaffoldState: ScaffoldState,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    showBackButton: Boolean = false,
+    onBackClick: (() -> Unit)? = null,
 ) {
     Surface(
         color = primary,
@@ -44,13 +47,21 @@ fun CommonAppBar(
             )
             IconButton(
                 onClick = {
-                    scope.launch { scaffoldState.drawerState.open() }
+                    if (showBackButton) {
+                        onBackClick?.invoke()
+                    } else {
+                        scope.launch { scaffoldState.drawerState.open() }
+                    }
                 },
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
                 Icon(
-                    Icons.Filled.Menu,
-                    contentDescription = "Menu",
+                    imageVector = if (showBackButton) {
+                        Icons.Default.ArrowBack
+                    } else {
+                        Icons.Filled.Menu
+                    },
+                    contentDescription = if (showBackButton) "Back" else "Menu",
                     tint = Color.White
                 )
             }

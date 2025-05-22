@@ -66,7 +66,9 @@ fun ContactFormScreen(
             CommonAppBar(
                 title = if (isEditMode) "Message 수정하기" else "Message 남기기",
                 scaffoldState = scaffoldState,
-                scope = scope
+                scope = scope,
+                showBackButton = true,
+                onBackClick = { navController.navigateUp() }
             )
         },
         floatingActionButton = {

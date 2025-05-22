@@ -87,7 +87,9 @@ fun ProjectFormScreen(
             CommonAppBar(
                 title = if (isEdit) "Edit Project" else "Add Project",
                 scaffoldState = scaffoldState,
-                scope = scope
+                scope = scope,
+                showBackButton = true,
+                onBackClick = { navController.navigateUp() }
             )
         },
         floatingActionButton = {

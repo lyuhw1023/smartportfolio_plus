@@ -3,12 +3,16 @@ package com.hyen.smartportfolio_plus.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.hyen.smartportfolio_plus.R
@@ -18,6 +22,7 @@ import com.hyen.smartportfolio_plus.data.contact.Contact
 import com.hyen.smartportfolio_plus.data.contact.ContactDatabase
 import com.hyen.smartportfolio_plus.data.firestore.FireStoreContactRepository
 import com.hyen.smartportfolio_plus.data.repository.ContactRepository
+import com.hyen.smartportfolio_plus.ui.theme.primary
 import com.hyen.smartportfolio_plus.viewmodel.ContactViewModel
 import com.hyen.smartportfolio_plus.viewmodel.ContactViewModelFactory
 import kotlinx.coroutines.CoroutineScope
@@ -94,9 +99,25 @@ fun ContactFormScreen(
                         )
                     }
                 },
-                backgroundColor = MaterialTheme.colors.secondary
+                backgroundColor = primary,
+                modifier = Modifier.padding(vertical = 10.dp, horizontal = 10.dp)
             ) {
-                Icon(Icons.Default.Check, contentDescription = "Save")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = "Save",
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        "등록하기",
+                        fontSize = 17.sp,
+                        color = Color.White
+                    )
+                }
             }
         }
     ) { padding ->
